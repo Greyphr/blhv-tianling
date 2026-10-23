@@ -1,0 +1,474 @@
+# Deadlock ranks (corrected ladder per spec)
+game: deadlock
+queue_type: default
+gap_unit: division
+ranks:
+  - tier: Obscurus
+    division: null
+    label: "Obscurus"
+    rank_order_value: 100
+    is_unranked: true
+    is_leaderboard_status: false
+    has_division: false
+  - tier: Initiate
+    division: "I"
+    label: "Initiate I"
+    rank_order_value: 200
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Initiate
+    division: "II"
+    label: "Initiate II"
+    rank_order_value: 210
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Initiate
+    division: "III"
+    label: "Initiate III"
+    rank_order_value: 220
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Initiate
+    division: "IV"
+    label: "Initiate IV"
+    rank_order_value: 230
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Initiate
+    division: "V"
+    label: "Initiate V"
+    rank_order_value: 240
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Initiate
+    division: "VI"
+    label: "Initiate VI"
+    rank_order_value: 250
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Seeker
+    division: "I"
+    label: "Seeker I"
+    rank_order_value: 300
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Seeker
+    division: "II"
+    label: "Seeker II"
+    rank_order_value: 310
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Seeker
+    division: "III"
+    label: "Seeker III"
+    rank_order_value: 320
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Seeker
+    division: "IV"
+    label: "Seeker IV"
+    rank_order_value: 330
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Seeker
+    division: "V"
+    label: "Seeker V"
+    rank_order_value: 340
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Seeker
+    division: "VI"
+    label: "Seeker VI"
+    rank_order_value: 350
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Acolyte
+    division: "I"
+    label: "Acolyte I"
+    rank_order_value: 400
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Acolyte
+    division: "II"
+    label: "Acolyte II"
+    rank_order_value: 410
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Acolyte
+    division: "III"
+    label: "Acolyte III"
+    rank_order_value: 420
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Acolyte
+    division: "IV"
+    label: "Acolyte IV"
+    rank_order_value: 430
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Acolyte
+    division: "V"
+    label: "Acolyte V"
+    rank_order_value: 440
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Acolyte
+    division: "VI"
+    label: "Acolyte VI"
+    rank_order_value: 450
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Sentinel
+    division: "I"
+    label: "Sentinel I"
+    rank_order_value: 500
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Sentinel
+    division: "II"
+    label: "Sentinel II"
+    rank_order_value: 510
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Sentinel
+    division: "III"
+    label: "Sentinel III"
+    rank_order_value: 520
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Sentinel
+    division: "IV"
+    label: "Sentinel IV"
+    rank_order_value: 530
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Sentinel
+    division: "V"
+    label: "Sentinel V"
+    rank_order_value: 540
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Sentinel
+    division: "VI"
+    label: "Sentinel VI"
+    rank_order_value: 550
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Mystic
+    division: "I"
+    label: "Mystic I"
+    rank_order_value: 600
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Mystic
+    division: "II"
+    label: "Mystic II"
+    rank_order_value: 610
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Mystic
+    division: "III"
+    label: "Mystic III"
+    rank_order_value: 620
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Mystic
+    division: "IV"
+    label: "Mystic IV"
+    rank_order_value: 630
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Mystic
+    division: "V"
+    label: "Mystic V"
+    rank_order_value: 640
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Mystic
+    division: "VI"
+    label: "Mystic VI"
+    rank_order_value: 650
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ritualist
+    division: "I"
+    label: "Ritualist I"
+    rank_order_value: 700
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ritualist
+    division: "II"
+    label: "Ritualist II"
+    rank_order_value: 710
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ritualist
+    division: "III"
+    label: "Ritualist III"
+    rank_order_value: 720
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ritualist
+    division: "IV"
+    label: "Ritualist IV"
+    rank_order_value: 730
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ritualist
+    division: "V"
+    label: "Ritualist V"
+    rank_order_value: 740
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ritualist
+    division: "VI"
+    label: "Ritualist VI"
+    rank_order_value: 750
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Emissary
+    division: "I"
+    label: "Emissary I"
+    rank_order_value: 800
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Emissary
+    division: "II"
+    label: "Emissary II"
+    rank_order_value: 810
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Emissary
+    division: "III"
+    label: "Emissary III"
+    rank_order_value: 820
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Emissary
+    division: "IV"
+    label: "Emissary IV"
+    rank_order_value: 830
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Emissary
+    division: "V"
+    label: "Emissary V"
+    rank_order_value: 840
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Emissary
+    division: "VI"
+    label: "Emissary VI"
+    rank_order_value: 850
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Oracle
+    division: "I"
+    label: "Oracle I"
+    rank_order_value: 900
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Oracle
+    division: "II"
+    label: "Oracle II"
+    rank_order_value: 910
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Oracle
+    division: "III"
+    label: "Oracle III"
+    rank_order_value: 920
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Oracle
+    division: "IV"
+    label: "Oracle IV"
+    rank_order_value: 930
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Oracle
+    division: "V"
+    label: "Oracle V"
+    rank_order_value: 940
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Oracle
+    division: "VI"
+    label: "Oracle VI"
+    rank_order_value: 950
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Phantom
+    division: "I"
+    label: "Phantom I"
+    rank_order_value: 1000
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Phantom
+    division: "II"
+    label: "Phantom II"
+    rank_order_value: 1010
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Phantom
+    division: "III"
+    label: "Phantom III"
+    rank_order_value: 1020
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Phantom
+    division: "IV"
+    label: "Phantom IV"
+    rank_order_value: 1030
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Phantom
+    division: "V"
+    label: "Phantom V"
+    rank_order_value: 1040
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Phantom
+    division: "VI"
+    label: "Phantom VI"
+    rank_order_value: 1050
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ascendant
+    division: "I"
+    label: "Ascendant I"
+    rank_order_value: 1100
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ascendant
+    division: "II"
+    label: "Ascendant II"
+    rank_order_value: 1110
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ascendant
+    division: "III"
+    label: "Ascendant III"
+    rank_order_value: 1120
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ascendant
+    division: "IV"
+    label: "Ascendant IV"
+    rank_order_value: 1130
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ascendant
+    division: "V"
+    label: "Ascendant V"
+    rank_order_value: 1140
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Ascendant
+    division: "VI"
+    label: "Ascendant VI"
+    rank_order_value: 1150
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternus
+    division: "I"
+    label: "Eternus I"
+    rank_order_value: 1200
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternus
+    division: "II"
+    label: "Eternus II"
+    rank_order_value: 1210
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternus
+    division: "III"
+    label: "Eternus III"
+    rank_order_value: 1220
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternus
+    division: "IV"
+    label: "Eternus IV"
+    rank_order_value: 1230
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternus
+    division: "V"
+    label: "Eternus V"
+    rank_order_value: 1240
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternus
+    division: "VI"
+    label: "Eternus VI"
+    rank_order_value: 1250
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true

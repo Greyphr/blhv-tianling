@@ -1,0 +1,166 @@
+# Marvel Rivals ranks (ordered by rank_order_value)
+game: marvel_rivals
+queue_type: default
+gap_unit: division
+ranks:
+  - tier: Bronze
+    division: "III"
+    label: "Bronze III"
+    rank_order_value: 100
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Bronze
+    division: "II"
+    label: "Bronze II"
+    rank_order_value: 110
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Bronze
+    division: "I"
+    label: "Bronze I"
+    rank_order_value: 120
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Silver
+    division: "III"
+    label: "Silver III"
+    rank_order_value: 200
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Silver
+    division: "II"
+    label: "Silver II"
+    rank_order_value: 210
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Silver
+    division: "I"
+    label: "Silver I"
+    rank_order_value: 220
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Gold
+    division: "III"
+    label: "Gold III"
+    rank_order_value: 300
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Gold
+    division: "II"
+    label: "Gold II"
+    rank_order_value: 310
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Gold
+    division: "I"
+    label: "Gold I"
+    rank_order_value: 320
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Platinum
+    division: "III"
+    label: "Platinum III"
+    rank_order_value: 400
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Platinum
+    division: "II"
+    label: "Platinum II"
+    rank_order_value: 410
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Platinum
+    division: "I"
+    label: "Platinum I"
+    rank_order_value: 420
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Diamond
+    division: "III"
+    label: "Diamond III"
+    rank_order_value: 500
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Diamond
+    division: "II"
+    label: "Diamond II"
+    rank_order_value: 510
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Diamond
+    division: "I"
+    label: "Diamond I"
+    rank_order_value: 520
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Grandmaster
+    division: "III"
+    label: "Grandmaster III"
+    rank_order_value: 600
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Grandmaster
+    division: "II"
+    label: "Grandmaster II"
+    rank_order_value: 610
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Grandmaster
+    division: "I"
+    label: "Grandmaster I"
+    rank_order_value: 620
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Celestial
+    division: "III"
+    label: "Celestial III"
+    rank_order_value: 700
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Celestial
+    division: "II"
+    label: "Celestial II"
+    rank_order_value: 710
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Celestial
+    division: "I"
+    label: "Celestial I"
+    rank_order_value: 720
+    is_unranked: false
+    is_leaderboard_status: false
+    has_division: true
+  - tier: Eternity
+    division: null
+    label: "Eternity"
+    rank_order_value: 800
+    is_unranked: false
+    is_leaderboard_status: true
+    has_division: false
+  - tier: One Above All
+    division: null
+    label: "One Above All"
+    rank_order_value: 900
+    is_unranked: false
+    is_leaderboard_status: true
+    has_division: false

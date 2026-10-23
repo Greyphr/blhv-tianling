@@ -1,0 +1,51 @@
+# Overwatch 2 Role Queue ranks (separate pool)
+game: overwatch_2
+queue_type: role_queue
+gap_unit: division
+ranks:
+  - {tier: Bronze, division: '5', label: 'Bronze 5', rank_order_value: 101, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Bronze, division: '4', label: 'Bronze 4', rank_order_value: 102, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Bronze, division: '3', label: 'Bronze 3', rank_order_value: 103, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Bronze, division: '2', label: 'Bronze 2', rank_order_value: 104, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Bronze, division: '1', label: 'Bronze 1', rank_order_value: 105, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Silver, division: '5', label: 'Silver 5', rank_order_value: 201, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Silver, division: '4', label: 'Silver 4', rank_order_value: 202, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Silver, division: '3', label: 'Silver 3', rank_order_value: 203, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Silver, division: '2', label: 'Silver 2', rank_order_value: 204, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Silver, division: '1', label: 'Silver 1', rank_order_value: 205, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Gold, division: '5', label: 'Gold 5', rank_order_value: 301, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Gold, division: '4', label: 'Gold 4', rank_order_value: 302, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Gold, division: '3', label: 'Gold 3', rank_order_value: 303, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Gold, division: '2', label: 'Gold 2', rank_order_value: 304, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Gold, division: '1', label: 'Gold 1', rank_order_value: 305, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Platinum, division: '5', label: 'Platinum 5', rank_order_value: 401, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Platinum, division: '4', label: 'Platinum 4', rank_order_value: 402, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Platinum, division: '3', label: 'Platinum 3', rank_order_value: 403, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Platinum, division: '2', label: 'Platinum 2', rank_order_value: 404, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Platinum, division: '1', label: 'Platinum 1', rank_order_value: 405, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Emerald, division: '5', label: 'Emerald 5', rank_order_value: 501, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Emerald, division: '4', label: 'Emerald 4', rank_order_value: 502, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Emerald, division: '3', label: 'Emerald 3', rank_order_value: 503, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Emerald, division: '2', label: 'Emerald 2', rank_order_value: 504, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Emerald, division: '1', label: 'Emerald 1', rank_order_value: 505, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Diamond, division: '5', label: 'Diamond 5', rank_order_value: 601, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Diamond, division: '4', label: 'Diamond 4', rank_order_value: 602, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Diamond, division: '3', label: 'Diamond 3', rank_order_value: 603, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Diamond, division: '2', label: 'Diamond 2', rank_order_value: 604, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Diamond, division: '1', label: 'Diamond 1', rank_order_value: 605, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Master, division: '5', label: 'Master 5', rank_order_value: 701, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Master, division: '4', label: 'Master 4', rank_order_value: 702, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Master, division: '3', label: 'Master 3', rank_order_value: 703, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Master, division: '2', label: 'Master 2', rank_order_value: 704, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Master, division: '1', label: 'Master 1', rank_order_value: 705, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Grandmaster, division: '5', label: 'Grandmaster 5', rank_order_value: 801, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Grandmaster, division: '4', label: 'Grandmaster 4', rank_order_value: 802, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Grandmaster, division: '3', label: 'Grandmaster 3', rank_order_value: 803, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Grandmaster, division: '2', label: 'Grandmaster 2', rank_order_value: 804, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Grandmaster, division: '1', label: 'Grandmaster 1', rank_order_value: 805, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Champion, division: '5', label: 'Champion 5', rank_order_value: 901, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Champion, division: '4', label: 'Champion 4', rank_order_value: 902, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Champion, division: '3', label: 'Champion 3', rank_order_value: 903, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Champion, division: '2', label: 'Champion 2', rank_order_value: 904, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Champion, division: '1', label: 'Champion 1', rank_order_value: 905, is_unranked: false, is_leaderboard_status: false, has_division: true}
+  - {tier: Top 500, division: null, label: 'Top 500', rank_order_value: 1000, is_unranked: false, is_leaderboard_status: true, has_division: false}

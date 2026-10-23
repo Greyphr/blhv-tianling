@@ -1,0 +1,22 @@
+# Time-based matchmaking relaxation and region adjacency (editable)
+relaxation:
+  - after_minutes: 10
+    rank_gap_bonus: 1
+    allow_adjacent_regions: false
+    allow_cross_region: false
+  - after_minutes: 20
+    rank_gap_bonus: 1
+    allow_adjacent_regions: true
+    allow_cross_region: false
+  - after_minutes: 30
+    rank_gap_bonus: 2
+    allow_adjacent_regions: true
+    allow_cross_region: true
+region_adjacency:
+  EMEA:
+    - NA
+  NA:
+    - EMEA
+    - Asia
+  Asia:
+    - NA

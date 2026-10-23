@@ -1,0 +1,20 @@
+{
+  "games": [
+    {
+      "key": "marvel_rivals",
+      "name": "Marvel Rivals"
+    },
+    {
+      "key": "overwatch_2",
+      "name": "Overwatch 2"
+    },
+    {
+      "key": "apex_legends",
+      "name": "Apex Legends"
+    },
+    {
+      "key": "deadlock",
+      "name": "Deadlock"
+    }
+  ]
+}

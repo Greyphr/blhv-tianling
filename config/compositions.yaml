@@ -1,0 +1,110 @@
+# Team compositions, group sizes, party limits and rank gaps (verify_in_game required)
+compositions:
+  - game: marvel_rivals
+    activity: competitive
+    group_size: 6
+    roles:
+      - key: vanguard
+        name: Vanguard
+        count: 2
+      - key: duelist
+        name: Duelist
+        count: 2
+      - key: strategist
+        name: Strategist
+        count: 2
+    role_required: true
+    allowed_rank_gap: 1
+    party_max_size: 6
+    max_party_rank_gap: 1
+    partial_fill_allowed: false
+    verify_in_game: true
+  - game: marvel_rivals
+    activity: casual
+    group_size: 6
+    roles: []
+    role_required: false
+    allowed_rank_gap: 2
+    party_max_size: 6
+    max_party_rank_gap: 2
+    partial_fill_allowed: true
+    verify_in_game: true
+  - game: overwatch_2
+    activity: role_queue
+    group_size: 5
+    roles:
+      - key: tank
+        name: Tank
+        count: 1
+      - key: damage
+        name: Damage
+        count: 2
+      - key: support
+        name: Support
+        count: 2
+    role_required: true
+    allowed_rank_gap: 1
+    party_max_size: 5
+    max_party_rank_gap: 1
+    partial_fill_allowed: false
+    verify_in_game: true
+  - game: overwatch_2
+    activity: open_queue
+    group_size: 5
+    roles: []
+    role_required: false
+    allowed_rank_gap: 2
+    party_max_size: 5
+    max_party_rank_gap: 2
+    partial_fill_allowed: true
+    verify_in_game: true
+  - game: overwatch_2
+    activity: casual
+    group_size: 5
+    roles: []
+    role_required: false
+    allowed_rank_gap: 3
+    party_max_size: 5
+    max_party_rank_gap: 3
+    partial_fill_allowed: true
+    verify_in_game: true
+  - game: apex_legends
+    activity: ranked
+    group_size: 3
+    roles: []
+    role_required: false
+    allowed_rank_gap: 2
+    party_max_size: 3
+    max_party_rank_gap: 2
+    partial_fill_allowed: false
+    verify_in_game: true
+  - game: apex_legends
+    activity: casual
+    group_size: 3
+    roles: []
+    role_required: false
+    allowed_rank_gap: 4
+    party_max_size: 3
+    max_party_rank_gap: 4
+    partial_fill_allowed: true
+    verify_in_game: true
+  - game: deadlock
+    activity: ranked
+    group_size: 6
+    roles: []
+    role_required: false
+    allowed_rank_gap: 2
+    party_max_size: 6
+    max_party_rank_gap: 2
+    partial_fill_allowed: false
+    verify_in_game: true
+  - game: deadlock
+    activity: standard
+    group_size: 6
+    roles: []
+    role_required: false
+    allowed_rank_gap: 3
+    party_max_size: 6
+    max_party_rank_gap: 3
+    partial_fill_allowed: true
+    verify_in_game: true

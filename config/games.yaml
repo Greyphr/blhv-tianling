@@ -1,0 +1,32 @@
+# Tianling game configuration (editable seed)
+games:
+  - key: marvel_rivals
+    name: "Marvel Rivals"
+    activities: [competitive, casual]
+    queues: [competitive, casual]
+    regions: [EMEA, NA, Asia]
+    platforms: []
+    role_system: role_slots
+  - key: overwatch_2
+    name: "Overwatch 2"
+    activities: [competitive, casual]
+    queues: [role_queue, open_queue]
+    regions: [EMEA, NA, Asia]
+    platforms: [pc, console]
+    role_system: role_slots
+  - key: apex_legends
+    name: "Apex Legends"
+    activities: [ranked, casual]
+    queues: [ranked, casual]
+    regions: [EMEA, NA, Asia]
+    platforms: [pc, console]
+    role_system: none
+  - key: deadlock
+    name: "Deadlock"
+    activities: [ranked, standard]
+    queues: [ranked, standard]
+    regions: [EMEA, NA, Asia]
+    platforms: [pc]
+    role_system: none
+regions: [EMEA, NA, Asia]
+platforms_global: [pc, console]

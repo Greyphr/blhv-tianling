@@ -1,0 +1,151 @@
+# Roles per game and starter hero/legend pools (editable)
+roles:
+  marvel_rivals:
+    - key: vanguard
+      name: Vanguard
+    - key: duelist
+      name: Duelist
+    - key: strategist
+      name: Strategist
+  overwatch_2:
+    - key: tank
+      name: Tank
+    - key: damage
+      name: Damage
+    - key: support
+      name: Support
+  apex_legends:
+    - key: playstyle
+      name: Playstyle
+  deadlock:
+    - key: flexible
+      name: Flexible
+
+hero_pool:
+  marvel_rivals:
+    editable: true
+    items:
+      - Hulk
+      - Doctor Strange
+      - Magneto
+      - Groot
+      - Thor
+      - Captain America
+      - Peni Parker
+      - The Thing
+      - Venom
+      - Spider-Man
+      - Iron Fist
+      - Black Panther
+      - Wolverine
+      - Magik
+      - Scarlet Witch
+      - Storm
+      - Iron Man
+      - Star-Lord
+      - Psylocke
+      - Namor
+      - Hela
+      - Hawkeye
+      - Black Widow
+      - Luna Snow
+      - Cloak & Dagger
+      - Mantis
+      - Rocket Raccoon
+      - Adam Warlock
+      - Jeff the Land Shark
+      - Invisible Woman
+      - Gambit
+  overwatch_2:
+    editable: true
+    items:
+      - Reinhardt
+      - Winston
+      - Orisa
+      - Roadhog
+      - Sigma
+      - Mauga
+      - D.Va
+      - Junker Queen
+      - Hazard
+      - Soldier: 76
+      - Reaper
+      - Tracer
+      - Genji
+      - Cassidy
+      - Sojourn
+      - Widowmaker
+      - Ashe
+      - Hanzo
+      - Mei
+      - Torbjörn
+      - Bastion
+      - Symmetra
+      - Pharah
+      - Echo
+      - Venture
+      - Ana
+      - Mercy
+      - Zenyatta
+      - Baptiste
+      - Kiriko
+      - Moira
+      - Brigitte
+      - Illari
+      - Juno
+      - Lúcio
+  apex_legends:
+    editable: true
+    items:
+      - Bangalore
+      - Bloodhound
+      - Gibraltar
+      - Lifeline
+      - Pathfinder
+      - Wraith
+      - Caustic
+      - Mirage
+      - Octane
+      - Wattson
+      - Crypto
+      - Revenant
+      - Loba
+      - Rampart
+      - Horizon
+      - Fuse
+      - Valkyrie
+      - Seer
+      - Ash
+      - Mad Maggie
+      - Newcastle
+      - Vantage
+      - Conduit
+      - Ballistic
+      - Catalyst
+      - Alter
+  deadlock:
+    editable: true
+    items:
+      - Abrams
+      - Bebop
+      - Dynamo
+      - Grey Talon
+      - Haze
+      - Infernus
+      - Ivy
+      - Kelvin
+      - Lady Geist
+      - Lash
+      - McGinnis
+      - Mirage
+      - Mo & Krill
+      - Paradox
+      - Pocket
+      - Seven
+      - Shiv
+      - Sinclair
+      - Vindicta
+      - Viscous
+      - Warden
+      - Wraith
+      - Yamato
