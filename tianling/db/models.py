@@ -200,6 +200,9 @@ class QueueEntry(Base, TimestampMixin, GuildScopedMixin):
     )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     relaxation_level: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    proposal_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    either_group: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    sibling_entry_ids: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
 
     __table_args__ = (
         Index(

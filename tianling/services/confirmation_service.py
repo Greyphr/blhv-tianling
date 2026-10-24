@@ -1,14 +1,20 @@
 """Confirmation service."""
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime
 
 from tianling.db.repositories.jobs import JobRepository
 from tianling.db.repositories.matches import MatchRepository
 from tianling.db.repositories.parties import PartyRepository
 from tianling.db.repositories.penalties import PenaltyRepository
 from tianling.db.repositories.queue import QueueRepository
-from tianling.services.events import GroupFinalized, MemberAccepted, MemberDeclined, MemberTimedOut, ReplacementFailed, ReplacementSucceeded
+from tianling.services.events import (
+    GroupFinalized,
+    MemberAccepted,
+    MemberDeclined,
+    MemberTimedOut,
+    ReplacementFailed,
+)
 
 
 class ConfirmationConfig:
@@ -100,7 +106,7 @@ class ConfirmationService:
             await self.matches.set_proposal_status(group.group_uuid, "finalized")
             self._events.append(GroupFinalized(guild_id=group.guild_id, group_uuid=group.group_uuid, status="finalized", voice_channel_id=group.voice_channel_id))
             try:
-                from tianling.discord_ui.notifications import NotificationService
+                pass
             except Exception:
                 pass
             await self.session.commit()

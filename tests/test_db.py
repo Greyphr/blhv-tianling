@@ -61,7 +61,7 @@ def test_migrations_run_from_empty_db(tmp_path: Path, monkeypatch: pytest.Monkey
     }
     assert required <= tables
     assert {"needs_update", "needs_update_reason"} <= profile_columns
-    assert revision == "0003_member_penalties"
+    assert revision == "0004_proposal_fields"
 
 
 @pytest.mark.asyncio

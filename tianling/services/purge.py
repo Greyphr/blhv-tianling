@@ -15,11 +15,9 @@ class DataPurgeService:
         user = await self.users.get(guild_id, member_id)
         if not user:
             return
-        # delete profiles
-        await self.session.execute(
-            __import__("sqlalchemy").delete(__import__("tianling.db.models").GameProfile).where(
-                __import__("tianling.db.models").GameProfile.user_id == user.id
-            )
-        )
+        from sqlalchemy import delete
+
+        from tianling.db.models import GameProfile
+        await self.session.execute(delete(GameProfile).where(GameProfile.user_id == user.id))
         await self.users.delete(user.id)
         await self.session.flush()

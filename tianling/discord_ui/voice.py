@@ -1,10 +1,6 @@
 """Voice channel manager."""
 from __future__ import annotations
 
-import asyncio
-import time
-from typing import Any
-
 import discord
 
 from tianling.db.models import ScheduledJob, TemporaryChannel
@@ -12,7 +8,6 @@ from tianling.db.repositories.channels import ChannelRepository
 from tianling.db.repositories.jobs import JobRepository
 from tianling.db.repositories.matches import MatchRepository
 from tianling.db.session import session_scope
-from tianling.discord_ui.theme import THEME
 
 
 class VoiceConfig:
@@ -137,6 +132,7 @@ class VoiceManager:
     async def reconcile(self, guild_id: int):
         async with session_scope() as session:
             from sqlalchemy import select
+
             from tianling.db.models import TemporaryChannel
 
             res = await session.execute(select(TemporaryChannel).where(TemporaryChannel.guild_id == guild_id))

@@ -1,15 +1,11 @@
 """Integration test for stateful services."""
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from tianling.db.base import Base
-from tianling.db.repositories.users import UserRepository
 from tianling.db.seed import seed_guild_data
-from tianling.services.confirmation_service import ConfirmationService
 from tianling.services.queue_service import QueueConfig, QueueService
 
 
@@ -31,4 +27,5 @@ async def test_queue_proposal_accept_finalize(tmp_path):
         events = qs.pop_events()
         # may have proposal
         assert events
+        await session.commit()
     await engine.dispose()

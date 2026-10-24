@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
 
 from tianling.db.repositories.game_profiles import GameProfileRepository
 from tianling.db.repositories.notification_settings import NotificationSettingRepository
@@ -24,7 +23,7 @@ class RegistryService:
     def _format_profile(self, profile, user) -> Embed:
         fields = []
         mention = f"<@{user.member_id}>" if user else ""
-        fields.append(("Player", mention or str(getattr(user, 'display_name') or user.member_id if user else ''), True))
+        fields.append(("Player", mention or str(user.display_name or user.member_id if user else ''), True))
         fields.append(("Game", f"{profile.game} ({profile.current_queue_type})", True))
         if profile.region:
             fields.append(("Region", profile.region, True))
@@ -83,7 +82,6 @@ class RegistryService:
     async def reconcile(self, guild_id: int, channel_id: int):
         profiles = await self.profiles.list_for_guild(guild_id)
         existing = await self.registry.list_for_channel(channel_id)
-        existing_map = {e.profile_id: e for e in existing}
         # update existing, create missing
         for p in profiles:
             try:

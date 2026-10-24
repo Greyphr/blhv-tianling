@@ -38,7 +38,12 @@ class TestMode:
 
     async def fill_queue(self, game: str, activity: str, count: int):
         for i in range(count):
-            await self.add_player(900000 + i, game, activity, {"tier": "gold", "division": "1", "order": 12})
+            await self.add_player(
+                900000 + i,
+                game,
+                activity,
+                {"tier": "gold", "division": "1", "order": 12},
+            )
         await self.session.flush()
 
     async def clear_all(self):

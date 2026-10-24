@@ -389,7 +389,10 @@ class ProfileService:
             dict.fromkeys(entry.party_id for entry in active_entries if entry.party_id)
         )
 
-        await self._registry.delete_for_profile(self.guild_id, profile.id)
+        try:
+            await self._registry.delete_for_profile(profile.id)
+        except Exception:
+            pass
         await self._queues.delete_for_user(self.guild_id, user.id, game=game_config.key)
         if party_ids:
             await self._queues.cancel_for_parties(self.guild_id, party_ids)
@@ -404,7 +407,12 @@ class ProfileService:
 
         profiles = await self._profiles.list_for_user(self.guild_id, user.id)
         profile_ids = [profile.id for profile in profiles]
-        registry_deleted = await self._registry.delete_for_profiles(self.guild_id, profile_ids)
+        registry_deleted = 0
+        try:
+            for pid in profile_ids:
+                registry_deleted += await self._registry.delete_for_profile(pid)
+        except Exception:
+            registry_deleted = 0
 
         party_ids = list(
             dict.fromkeys(

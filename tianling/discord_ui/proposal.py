@@ -1,14 +1,11 @@
 """Matchmaking alerts and proposal views."""
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 
 import discord
 
-from tianling.db.repositories.matches import MatchRepository
-from tianling.db.repositories.parties import PartyRepository
 from tianling.db.session import session_scope
-from tianling.discord_ui.theme import THEME
 
 
 class ProposalView(discord.ui.View):

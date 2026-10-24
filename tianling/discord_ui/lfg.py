@@ -5,13 +5,11 @@ import uuid
 
 import discord
 
-from tianling.db.repositories.compositions import CompositionRepository
 from tianling.db.repositories.game_profiles import GameProfileRepository
 from tianling.db.repositories.users import UserRepository
 from tianling.db.session import session_scope
 from tianling.discord_ui.theme import THEME
-from tianling.services.queue_service import QueueConfig, QueueService
-
+from tianling.services.queue_service import QueueService
 
 GAMES = [
     ("Marvel Rivals", "marvel_rivals"),

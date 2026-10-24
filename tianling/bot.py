@@ -44,9 +44,9 @@ class TianlingBot(commands.Bot):
 
         # Setup commands
         try:
+            from tianling.discord_ui.admin import setup_admin
             from tianling.discord_ui.commands import setup_commands
             from tianling.discord_ui.lfg_commands import setup_lfg_commands
-            from tianling.discord_ui.admin import setup_admin
 
             setup_commands(self.tree, self.guild_id)
             setup_lfg_commands(self.tree, self.guild_id)

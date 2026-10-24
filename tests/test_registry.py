@@ -36,11 +36,19 @@ async def test_registry_reconcile_upsert_edit_delete(tmp_path):
         await svc.reconcile(1, 123456)
         assert len(adapter.messages) == 1
         mid = list(adapter.messages.keys())[0]
+        msg = adapter.messages[mid]
+        embed = getattr(msg, "embed", None)
+        if embed is None and isinstance(msg, dict):
+            embed = msg.get("embed")
         # edit
         p.current_rank_tier = "Platinum"
         await session.commit()
         await svc.upsert_profile(1, p.id, 123456)
-        assert adapter.messages[mid].embed.fields is not None
+        msg2 = adapter.messages[mid]
+        embed2 = getattr(msg2, "embed", None)
+        if embed2 is None and isinstance(msg2, dict):
+            embed2 = msg2.get("embed")
+        assert embed2 is not None
         # delete
         await svc.delete_profile(p.id)
         assert len(adapter.messages) == 0

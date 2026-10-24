@@ -2,13 +2,19 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from tianling.core.matching import MatchEntry, find_matches
-from tianling.db.models import MatchGroup, MatchMember, PartyMember, QueueEntry, ScheduledJob
-from tianling.db.repositories.channels import ChannelRepository
+from tianling.core.matching import MatchEntry, MatchMember, find_matches
+from tianling.core.ranks import RankPool
+from tianling.core.seed_loader import SeedLoader
+from tianling.db.models import (
+    MatchGroup,
+    MatchMember as DBMatchMember,
+    PartyMember,
+    QueueEntry,
+    ScheduledJob,
+)
 from tianling.db.repositories.config import GuildConfigRepository
 from tianling.db.repositories.game_profiles import GameProfileRepository
 from tianling.db.repositories.jobs import JobRepository
@@ -16,16 +22,22 @@ from tianling.db.repositories.matches import MatchRepository
 from tianling.db.repositories.parties import PartyRepository
 from tianling.db.repositories.penalties import PenaltyRepository
 from tianling.db.repositories.queue import QueueRepository
+from tianling.db.repositories.ranks import RankRepository
 from tianling.db.repositories.users import UserRepository
 from tianling.services.events import ProposalCreated
 
 
-@dataclass(slots=True)
 class QueueConfig:
-    queue_expiry_minutes: int = 30
-    confirmation_timeout_seconds: int = 60
-    cooldown_seconds: int = 300
-    auto_confirm: bool = False
+    def __init__(self, queue_expiry_minutes: int = 30, confirmation_timeout_seconds: int = 60,
+                 cooldown_seconds: int = 300, auto_confirm: bool = False):
+        self.queue_expiry_minutes = queue_expiry_minutes
+        self.confirmation_timeout_seconds = confirmation_timeout_seconds
+        self.cooldown_seconds = cooldown_seconds
+        self.auto_confirm = auto_confirm
+
+
+def _utc_now() -> datetime:
+    return datetime.now(UTC)
 
 
 class QueueService:
@@ -38,9 +50,10 @@ class QueueService:
         self.parties = PartyRepository(session)
         self.matches = MatchRepository(session)
         self.jobs = JobRepository(session)
-        self.channels = ChannelRepository(session)
         self.penalties = PenaltyRepository(session)
         self.guild_config = GuildConfigRepository(session)
+        self.ranks = RankRepository(session)
+        self.loader = SeedLoader()
         self._events: list = []
 
     def pop_events(self) -> list:
@@ -51,7 +64,11 @@ class QueueService:
     async def _emit(self, ev):
         self._events.append(ev)
 
-    async def create_party(self, guild_id: int, leader_member_id: int, member_ids: list[int], declared_roles: dict[int, str] | None = None, guest_flags: dict[int, bool] | None = None, rank_snapshots: dict[int, dict] | None = None, accepted_roles: dict[int, list] | None = None):
+    async def create_party(self, guild_id: int, leader_member_id: int, member_ids: list[int],
+                          declared_roles: dict[int, str] | None = None,
+                          guest_flags: dict[int, bool] | None = None,
+                          rank_snapshots: dict[int, dict] | None = None,
+                          accepted_roles: dict[int, list] | None = None):
         party_id = str(uuid.uuid4())
         declared_roles = declared_roles or {}
         guest_flags = guest_flags or {}
@@ -71,11 +88,22 @@ class QueueService:
             await self.parties.add_member(pm)
         await self.session.flush()
         from tianling.services.events import PartyCreated
-
-        self._events.append(PartyCreated(guild_id=guild_id, party_id=party_id, leader_member_id=leader_member_id, member_ids=member_ids))
+        self._events.append(
+            PartyCreated(guild_id=guild_id, party_id=party_id,
+                         leader_member_id=leader_member_id, member_ids=member_ids)
+        )
         return party_id
 
-    async def join_queue(self, guild_id: int, member_id: int, game: str, activity: str, queue_type: str = "default", region: str | None = None, role_preference: str | None = None, preferred_roles: list | None = None, acceptable_roles: list | None = None, rank_snapshot: dict | None = None, party_id: str | None = None, party_size: int = 1, leader_member_id: int | None = None, open_slots: dict | None = None) -> QueueEntry:
+    async def join_queue(self, guild_id: int, member_id: int, game: str, activity: str,
+                         queue_type: str = "default", region: str | None = None,
+                         role_preference: str | None = None, preferred_roles: list | None = None,
+                         acceptable_roles: list | None = None, rank_snapshot: dict | None = None,
+                         party_id: str | None = None, party_size: int = 1,
+                         leader_member_id: int | None = None, open_slots: dict | None = None):
+        now = _utc_now()
+        active_penalty = await self.penalties.get_active(guild_id, member_id, now)
+        if active_penalty:
+            raise ValueError("member on matchmaking cooldown")
         user = await self.users.get_or_create(guild_id, member_id)
         entry = QueueEntry(
             guild_id=guild_id,
@@ -94,8 +122,8 @@ class QueueService:
             leader_member_id=leader_member_id,
             open_slots=open_slots,
             status="queued",
-            queued_at=datetime.now(UTC),
-            expires_at=datetime.now(UTC) + timedelta(minutes=self.config.queue_expiry_minutes),
+            queued_at=now,
+            expires_at=now + timedelta(minutes=self.config.queue_expiry_minutes),
             relaxation_level=0,
         )
         entry = await self.queue.join(entry)
@@ -117,63 +145,153 @@ class QueueService:
         party_ids = await self.parties.party_ids_for_member(guild_id, member_id)
         for pid in party_ids:
             await self.parties.remove_member(guild_id, pid, member_id)
-        # cancel queue entries for affected parties
         for pid in party_ids:
             await self.queue.cancel_for_parties(guild_id, [pid])
         await self.session.flush()
         from tianling.services.events import PartyMemberLeft
-
         for pid in party_ids:
             self._events.append(PartyMemberLeft(guild_id=guild_id, party_id=pid, member_id=member_id))
         return party_ids
 
+    async def _build_rank_pool(self, guild_id: int, game: str, queue_type: str):
+        definitions = await self.ranks.list_for(guild_id, game, queue_type)
+        if not definitions:
+            definitions = await self.ranks.list_for(guild_id, game, "default")
+        try:
+            ranks_file = self.loader.load_ranks(game, queue_type) if definitions else None
+            gap_unit = ranks_file.gap_unit if ranks_file else "division"
+        except Exception:
+            gap_unit = "division"
+        return RankPool.from_rank_definitions(definitions, gap_unit=gap_unit)
+
+    def _snapshot_to_rank(self, snapshot: dict | None, pool: RankPool):
+        if not snapshot:
+            return None
+        try:
+            tier = snapshot.get("tier") or snapshot.get("rank_tier")
+            division = snapshot.get("division")
+            return pool.validate(str(tier), division)
+        except Exception:
+            return None
+
     async def _run_matching(self, guild_id: int, game: str, activity: str):
+        now = _utc_now()
         entries = await self.queue.list_active(guild_id, game, activity)
         if not entries:
             return
+        compositions = self.loader.load_compositions().compositions
+        try:
+            matching_raw = self.loader.load_raw("matching.yaml")
+        except Exception:
+            matching_raw = {}
+        from tianling.core.matching import MatchingConfig
+        matching_config = MatchingConfig.from_mapping(matching_raw)
+        allow_partial = False
+        try:
+            gc = await self.guild_config.get(guild_id, "allow_partial_fill")
+            if gc and gc.value and gc.value.get("enabled"):
+                allow_partial = True
+        except Exception:
+            allow_partial = False
+        failed_hashes = []
+
         m_entries: list[MatchEntry] = []
         for e in entries:
+            members_list = []
+            party_members = []
+            if e.party_id:
+                party_members = await self.parties.list_for_party(guild_id, e.party_id)
+            if party_members:
+                pool = await self._build_rank_pool(guild_id, e.game, e.queue_type)
+                for pm in party_members:
+                    snap = pm.rank_snapshot or {}
+                    rank = self._snapshot_to_rank(snap, pool)
+                    members_list.append(
+                        MatchMember(
+                            member_id=pm.member_id if pm.member_id is not None else e.member_id,
+                            rank=rank,
+                            preferred_roles=tuple(pm.accepted_roles or []),
+                            acceptable_roles=tuple(pm.accepted_roles or []),
+                            declared_role=pm.declared_role,
+                            is_guest=bool(pm.is_guest),
+                        )
+                    )
+            else:
+                pool = await self._build_rank_pool(guild_id, e.game, e.queue_type)
+                rank = self._snapshot_to_rank(e.rank_snapshot, pool)
+                members_list.append(
+                    MatchMember(
+                        member_id=e.member_id,
+                        rank=rank,
+                        preferred_roles=tuple(e.preferred_roles or []),
+                        acceptable_roles=tuple(e.acceptable_roles or []),
+                        declared_role=e.role_preference,
+                        is_guest=False,
+                    )
+                )
             m_entries.append(
                 MatchEntry(
-                    entry_id=e.id,
-                    guild_id=e.guild_id,
+                    entry_id=str(e.id),
                     game=e.game,
                     activity=e.activity,
+                    members=tuple(members_list),
                     queue_type=e.queue_type,
                     region=e.region,
-                    member_id=e.member_id,
                     party_id=e.party_id,
-                    party_size=e.party_size,
                     leader_member_id=e.leader_member_id,
-                    rank_snapshot=e.rank_snapshot or {},
-                    preferred_roles=e.preferred_roles,
-                    acceptable_roles=e.acceptable_roles,
-                    role_preference=e.role_preference,
-                    open_slots=e.open_slots,
-                    relaxation_level=e.relaxation_level,
+                    queued_at=e.queued_at,
+                    expires_at=e.expires_at,
                 )
             )
-        proposals = find_matches(m_entries)
+
+        proposals = find_matches(
+            m_entries,
+            compositions,
+            config=matching_config,
+            now=now,
+            failed_hashes=failed_hashes,
+            allow_partial=allow_partial,
+        )
+
         for p in proposals:
-            entry_ids = [me.entry_id for me in p.entries]
-            leader_mid = None
-            party_ids = []
-            for me in p.entries:
-                for qe in entries:
-                    if qe.id == me.entry_id:
-                        if qe.leader_member_id and leader_mid is None:
-                            leader_mid = qe.leader_member_id
-                        if qe.party_id and qe.party_id not in party_ids:
-                            party_ids.append(qe.party_id)
-                        break
-            if leader_mid is None and p.entries:
-                leader_mid = p.entries[0].member_id
-            party_key = p.entries[0].party_id or str(uuid.uuid4())
-            try:
-                await self.queue.reserve_entries(guild_id, party_key, entry_ids, leader_mid or 0)
-            except Exception:
-                await self.session.rollback()
+            entry_map = {me.entry_id: me for me in m_entries}
+            entry_ids = [me.entry_id for me in p.entries] if hasattr(p, "entries") else list(p.entry_ids)
+            # find corresponding entries
+            selected_entries = []
+            for eid in entry_ids:
+                if eid in entry_map:
+                    selected_entries.append(entry_map[eid])
+                else:
+                    for me in m_entries:
+                        if str(me.entry_id) == str(eid):
+                            selected_entries.append(me)
+                            break
+            if not selected_entries:
                 continue
+            leader_mid = None
+            for se in selected_entries:
+                if se.leader_member_id:
+                    leader_mid = se.leader_member_id
+                    break
+            if leader_mid is None and selected_entries:
+                leader_mid = selected_entries[0].member_ids[0]
+            proposal_id = str(uuid.uuid4())
+            # use savepoint per proposal
+            async with self.session.begin_nested():
+                try:
+                    reserved = []
+                    for se in selected_entries:
+                        entry_id_int = int(str(se.entry_id))
+                        qe = await self.session.get(QueueEntry, entry_id_int)
+                        if not qe or qe.status != "queued":
+                            raise ValueError("not available")
+                        qe.status = "reserved"
+                        qe.proposal_id = proposal_id
+                        reserved.append(qe)
+                    await self.session.flush()
+                except Exception:
+                    raise
+
             group_uuid = str(uuid.uuid4())
             mg = MatchGroup(
                 guild_id=guild_id,
@@ -182,37 +300,76 @@ class QueueService:
                 activity=p.activity,
                 queue_type=p.queue_type,
                 region=p.region,
-                party_id=party_key,
+                party_id=proposal_id,
                 status="proposed",
                 proposal_status="pending",
-                confirmation_deadline=datetime.now(UTC) + timedelta(seconds=self.config.confirmation_timeout_seconds) if not self.config.auto_confirm else None,
-                roster={"entries": [me.entry_id for me in p.entries], "roles": p.role_assignments},
+                confirmation_deadline=(
+                    now + timedelta(seconds=self.config.confirmation_timeout_seconds)
+                    if not self.config.auto_confirm
+                    else None
+                ),
+                roster={
+                    "entries": entry_ids,
+                    "roles": getattr(p, "role_assignments", None),
+                },
             )
-            mg = await self.matches.create_group(mg)
-            for me in p.entries:
-                mm = MatchMember(
-                    guild_id=guild_id,
-                    match_group_id=mg.id,
-                    party_id=me.party_id,
-                    member_id=me.member_id,
-                    user_id=None,
-                    role_assigned=p.role_assignments.get(str(me.member_id)) if p.role_assignments else None,
-                )
-                await self.matches.add_member(mm)
-            await self.jobs.enqueue(
+            self.session.add(mg)
+            await self.session.flush()
+
+            # create match members for EVERY player in roster
+            for se in selected_entries:
+                party_members = []
+                if se.party_id:
+                    party_members = await self.parties.list_for_party(guild_id, se.party_id)
+                if party_members:
+                    for pm in party_members:
+                        response = "accepted" if pm.confirmed else None
+                        mm = DBMatchMember(
+                            guild_id=guild_id,
+                            match_group_id=mg.id,
+                            party_id=se.party_id,
+                            member_id=pm.member_id if pm.member_id is not None else se.member_ids[0],
+                            user_id=None,
+                            role_assigned=(
+                                getattr(p, "role_assignments", {}).get(str(pm.member_id))
+                                if getattr(p, "role_assignments", None)
+                                else pm.declared_role
+                            ),
+                            response=response,
+                        )
+                        self.session.add(mm)
+                else:
+                    for mid in se.member_ids:
+                        mm = DBMatchMember(
+                            guild_id=guild_id,
+                            match_group_id=mg.id,
+                            party_id=se.party_id,
+                            member_id=mid,
+                            user_id=None,
+                            role_assigned=(
+                                getattr(p, "role_assignments", {}).get(str(mid))
+                                if getattr(p, "role_assignments", None)
+                                else None
+                            ),
+                            response="accepted",
+                        )
+                        self.session.add(mm)
+            await self.session.flush()
+
+            self.session.add(
                 ScheduledJob(
                     guild_id=guild_id,
                     job_type="confirmation_deadline",
-                    run_at=mg.confirmation_deadline or (datetime.now(UTC) + timedelta(seconds=self.config.confirmation_timeout_seconds)),
+                    run_at=mg.confirmation_deadline or now,
                     payload={"group_uuid": group_uuid},
                     status="pending",
                 )
             )
-            await self.jobs.enqueue(
+            self.session.add(
                 ScheduledJob(
                     guild_id=guild_id,
                     job_type="matching_tick",
-                    run_at=datetime.now(UTC) + timedelta(seconds=1),
+                    run_at=now + timedelta(seconds=1),
                     payload={"game": game, "activity": activity},
                     status="pending",
                 )
@@ -225,19 +382,12 @@ class QueueService:
                     activity=p.activity,
                     queue_type=p.queue_type,
                     region=p.region,
-                    party_ids=party_ids,
-                    member_ids=[me.member_id for me in p.entries],
+                    party_ids=[se.party_id for se in selected_entries if se.party_id],
+                    member_ids=[mid for se in selected_entries for mid in se.member_ids],
                     confirmation_deadline=mg.confirmation_deadline,
                     auto_confirm=self.config.auto_confirm,
                     roster=mg.roster,
                 )
             )
-            # attempt to post to Discord if available
-            try:
-                from tianling.discord_ui.notifications import NotificationService
-
-                # bot not passed here; skip if no bot context
-            except Exception:
-                pass
-            await self.session.commit()
-            return
+            await self.session.flush()
+        # loop continues over all proposals

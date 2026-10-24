@@ -6,7 +6,6 @@ from datetime import UTC, datetime
 
 from tianling.db.repositories.channels import ChannelRepository
 from tianling.db.repositories.jobs import JobRepository
-from tianling.db.repositories.matches import MatchRepository
 from tianling.db.repositories.queue import QueueRepository
 from tianling.services.confirmation_service import ConfirmationService
 from tianling.services.queue_service import QueueService
@@ -83,7 +82,7 @@ class Scheduler:
                         cid = payload.get("channel_id")
                         if job.guild_id and cid:
                             try:
-                                from tianling.discord_ui.voice import VoiceManager, VoiceConfig
+                                pass
                                 # no bot in this context; skip real delete
                             except Exception:
                                 pass

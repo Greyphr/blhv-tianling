@@ -1,8 +1,6 @@
 """Fake Discord adapter for tests."""
 from __future__ import annotations
 
-from typing import Any
-
 from tianling.discord_ui.registry_adapter import DiscordAdapter, Embed
 
 

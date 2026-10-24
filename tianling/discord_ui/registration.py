@@ -3,9 +3,7 @@ from __future__ import annotations
 
 import discord
 
-from tianling.db.repositories.compositions import CompositionRepository
 from tianling.db.repositories.game_profiles import GameProfileRepository
-from tianling.db.repositories.ranks import RankRepository
 from tianling.db.repositories.users import UserRepository
 from tianling.db.session import session_scope
 from tianling.discord_ui.theme import THEME

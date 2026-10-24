@@ -99,9 +99,7 @@ class QueueRepository(BaseRepository):
             )
             .values(
                 status="reserved",
-                party_id=party_id,
-                party_size=len(entry_ids),
-                leader_member_id=leader_member_id,
+                proposal_id=party_id,
             )
         )
         res = await self.session.execute(stmt)

@@ -4,7 +4,6 @@ from __future__ import annotations
 import discord
 from discord import app_commands
 
-from tianling.db.repositories.config import GuildConfigRepository
 from tianling.db.repositories.matches import MatchRepository
 from tianling.db.repositories.queue import QueueRepository
 from tianling.db.session import session_scope
