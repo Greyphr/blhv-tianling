@@ -1,4 +1,5 @@
 """Registry repository."""
+
 from __future__ import annotations
 
 from sqlalchemy import delete, select

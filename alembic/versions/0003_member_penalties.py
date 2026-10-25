@@ -30,9 +30,15 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_member_penalties")),
         sa.UniqueConstraint("guild_id", "member_id", name="uq_member_penalties_guild_member"),
     )
-    op.create_index(op.f("ix_member_penalties_guild_id"), "member_penalties", ["guild_id"], unique=False)
-    op.create_index(op.f("ix_member_penalties_member_id"), "member_penalties", ["member_id"], unique=False)
-    op.create_index(op.f("ix_member_penalties_expires_at"), "member_penalties", ["expires_at"], unique=False)
+    op.create_index(
+        op.f("ix_member_penalties_guild_id"), "member_penalties", ["guild_id"], unique=False
+    )
+    op.create_index(
+        op.f("ix_member_penalties_member_id"), "member_penalties", ["member_id"], unique=False
+    )
+    op.create_index(
+        op.f("ix_member_penalties_expires_at"), "member_penalties", ["expires_at"], unique=False
+    )
 
 
 def downgrade() -> None:

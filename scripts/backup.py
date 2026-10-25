@@ -1,4 +1,5 @@
 """SQLite backup script."""
+
 from __future__ import annotations
 
 import sqlite3

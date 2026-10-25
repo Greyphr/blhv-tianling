@@ -17,8 +17,10 @@ from tianling.db import (
 
 config = context.config
 
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+# When the bot runs migrations in-process it sets configure_logger=False so Alembic does not
+# reset the root log level (alembic.ini says WARN, which hid every bot INFO message).
+if config.config_file_name is not None and config.attributes.get("configure_logger", True):
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 

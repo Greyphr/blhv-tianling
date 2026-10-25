@@ -75,9 +75,7 @@ def _entry(
     )
 
 
-def _role_members(
-    rank: Rank, roles: list[str], *, start: int = 1
-) -> tuple[MatchMember, ...]:
+def _role_members(rank: Rank, roles: list[str], *, start: int = 1) -> tuple[MatchMember, ...]:
     return tuple(
         _member(start + index, rank, preferred=(role,), acceptable=(role,))
         for index, role in enumerate(roles)
@@ -188,9 +186,7 @@ def test_flexible_member_fills_scarce_role(
     assert len(proposals) == 1
     assigned = {member.member_id: member.role for member in proposals[0].members}
     assert assigned[6] == "strategist"
-    assert Counter(assigned.values()) == Counter(
-        {"vanguard": 2, "duelist": 2, "strategist": 2}
-    )
+    assert Counter(assigned.values()) == Counter({"vanguard": 2, "duelist": 2, "strategist": 2})
 
 
 def test_overfilled_party_roles_are_rejected(

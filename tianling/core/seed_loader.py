@@ -108,6 +108,7 @@ class GamesFile(BaseModel):
 class RolesAndPool(BaseModel):
     roles: dict[str, list[dict[str, Any]]]
     hero_pool: dict[str, Any]
+    playstyles: dict[str, list[str]] = Field(default_factory=dict)
 
 
 def _load_yaml(path: Path) -> Any:
@@ -150,6 +151,19 @@ class SeedLoader:
             return RanksFile.model_validate(data)
         except ValidationError as e:
             raise ValueError(f"Invalid ranks in {path.name}: {e}") from e
+
+    def rank_pools(self, game: str) -> list[str]:
+        """Queue types that have their own rank ladder for a game, from the rank files.
+
+        Overwatch yields ``["role_queue", "open_queue"]``; single-ladder games yield
+        ``["default"]``.  Nothing here is hardcoded to a game.
+        """
+        pools: list[str] = []
+        for path in sorted(self.ranks_dir.glob("*.yaml")):
+            data = _load_yaml(path)
+            if isinstance(data, dict) and data.get("game") == game:
+                pools.append(str(data.get("queue_type", "default")))
+        return pools or ["default"]
 
     def load_compositions(self) -> CompositionsFile:
         data = _load_yaml(self.config_dir / "compositions.yaml")

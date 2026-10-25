@@ -1,4 +1,5 @@
 """Tests for voice manager logic with fake adapter."""
+
 from __future__ import annotations
 
 import pytest

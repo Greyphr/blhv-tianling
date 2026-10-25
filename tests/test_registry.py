@@ -1,4 +1,5 @@
 """Tests for registry reconcile logic."""
+
 from __future__ import annotations
 
 import pytest
@@ -30,7 +31,18 @@ async def test_registry_reconcile_upsert_edit_delete(tmp_path):
         user = await urepo.get_or_create(1, 555, display_name="Test")
         prep = GameProfileRepository(session)
         from tianling.db.models import GameProfile
-        p = GameProfile(guild_id=1, user_id=user.id, game="marvel_rivals", ingame_name="TestPlayer", region="NA", current_rank_tier="Gold", current_division="2", current_queue_type="default", rank_source="self_reported")
+
+        p = GameProfile(
+            guild_id=1,
+            user_id=user.id,
+            game="marvel_rivals",
+            ingame_name="TestPlayer",
+            region="NA",
+            current_rank_tier="Gold",
+            current_division="2",
+            current_queue_type="default",
+            rank_source="self_reported",
+        )
         p = await prep.create(p)
         await session.commit()
         await svc.reconcile(1, 123456)

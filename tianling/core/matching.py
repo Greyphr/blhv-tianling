@@ -97,9 +97,7 @@ class MatchingConfig:
                     RelaxationStep(
                         after_minutes=int(getattr(step, "after_minutes", 0)),
                         rank_gap_bonus=int(getattr(step, "rank_gap_bonus", 0)),
-                        allow_adjacent_regions=bool(
-                            getattr(step, "allow_adjacent_regions", False)
-                        ),
+                        allow_adjacent_regions=bool(getattr(step, "allow_adjacent_regions", False)),
                         allow_cross_region=bool(getattr(step, "allow_cross_region", False)),
                     )
                 )
@@ -352,8 +350,10 @@ def _assign_roles(
     members: list[tuple[int, MatchEntry, MatchMember, tuple[str, ...]]] = []
     for entry in entries:
         for member in entry.members:
-            options = _member_role_options(member, role_keys) if required else _flexible_roles(
-                member, role_keys
+            options = (
+                _member_role_options(member, role_keys)
+                if required
+                else _flexible_roles(member, role_keys)
             )
             if required and not options:
                 return None
@@ -586,9 +586,7 @@ def _make_proposal(
         )
     )
     solo_count = sum(1 for entry in entries if entry.party_size == 1)
-    rank_spread = _rank_spread(
-        member for entry in entries for member in entry.members
-    )
+    rank_spread = _rank_spread(member for entry in entries for member in entry.members)
     if rank_spread is None:
         rank_spread = 10**9
     oldest_wait = max((_entry_wait_minutes(entry, now) for entry in entries), default=0.0)
@@ -638,9 +636,7 @@ def _validate_candidate(
     assigned, preferred_misses, displaced = assignments
 
     max_gap = composition.allowed_rank_gap + step.rank_gap_bonus
-    total_spread = _rank_spread(
-        member for entry in entries for member in entry.members
-    )
+    total_spread = _rank_spread(member for entry in entries for member in entry.members)
     if total_spread is None or total_spread > max_gap:
         return None
 
@@ -689,9 +685,10 @@ def _search_exact(
     def search(start: int) -> None:
         nonlocal size
         if size == target:
-            if level > 0 and max(
-                _entry_relaxation_level(entry, config, now) for entry in chosen
-            ) < level:
+            if (
+                level > 0
+                and max(_entry_relaxation_level(entry, config, now) for entry in chosen) < level
+            ):
                 return
             validated = _validate_candidate(
                 composition,
@@ -754,9 +751,10 @@ def _search_partial_at_size(
     def search(start: int) -> None:
         nonlocal size
         if size == size_target:
-            if level > 0 and max(
-                _entry_relaxation_level(entry, config, now) for entry in chosen
-            ) < level:
+            if (
+                level > 0
+                and max(_entry_relaxation_level(entry, config, now) for entry in chosen) < level
+            ):
                 return
             validated = _validate_candidate(
                 composition,
@@ -925,9 +923,7 @@ def find_matches(
         seen_ids.add(entry.entry_id)
         member_ids = entry.member_ids
         if len(set(member_ids)) != len(member_ids):
-            raise MatchingValidationError(
-                f"entry {entry.entry_id!r} contains duplicate member ids"
-            )
+            raise MatchingValidationError(f"entry {entry.entry_id!r} contains duplicate member ids")
 
     result: list[MatchProposal] = []
     used_entries: set[str] = set()

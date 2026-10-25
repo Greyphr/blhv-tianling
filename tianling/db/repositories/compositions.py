@@ -39,3 +39,21 @@ class CompositionRepository(BaseRepository):
         stmt = select(Composition).where(Composition.guild_id == guild_id, Composition.game == game)
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
+
+    async def list_for_guild(self, guild_id: int) -> list[Composition]:
+        res = await self.session.execute(
+            select(Composition)
+            .where(Composition.guild_id == guild_id)
+            .order_by(Composition.game, Composition.activity)
+        )
+        return list(res.scalars().all())
+
+    async def get(self, guild_id: int, game: str, activity: str) -> Composition | None:
+        res = await self.session.execute(
+            select(Composition).where(
+                Composition.guild_id == guild_id,
+                Composition.game == game,
+                Composition.activity == activity,
+            )
+        )
+        return res.scalar_one_or_none()

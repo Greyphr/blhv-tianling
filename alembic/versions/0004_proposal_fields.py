@@ -21,8 +21,12 @@ def upgrade() -> None:
     op.add_column("queue_entries", sa.Column("proposal_id", sa.String(length=64), nullable=True))
     op.add_column("queue_entries", sa.Column("either_group", sa.String(length=64), nullable=True))
     op.add_column("queue_entries", sa.Column("sibling_entry_ids", sa.JSON(), nullable=True))
-    op.create_index(op.f("ix_queue_entries_proposal_id"), "queue_entries", ["proposal_id"], unique=False)
-    op.create_index(op.f("ix_queue_entries_either_group"), "queue_entries", ["either_group"], unique=False)
+    op.create_index(
+        op.f("ix_queue_entries_proposal_id"), "queue_entries", ["proposal_id"], unique=False
+    )
+    op.create_index(
+        op.f("ix_queue_entries_either_group"), "queue_entries", ["either_group"], unique=False
+    )
 
 
 def downgrade() -> None:

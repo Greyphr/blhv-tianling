@@ -18,8 +18,10 @@ from tianling.config import get_settings
 from tianling.core.ranks import RankConfigError, RankPool
 from tianling.core.seed_loader import GameEntry, SeedLoader
 from tianling.db.models import GameProfile, QueueEntry
+from tianling.db.repositories.game_preferences import GamePreferenceRepository
 from tianling.db.repositories.game_profiles import GameProfileRepository
 from tianling.db.repositories.matches import MatchRepository
+from tianling.db.repositories.notification_settings import NotificationSettingRepository
 from tianling.db.repositories.parties import PartyRepository
 from tianling.db.repositories.queue import QueueRepository
 from tianling.db.repositories.ranks import RankRepository
@@ -44,6 +46,16 @@ class ProfileValidationError(ProfileError):
 
 
 EligibilityHook = Callable[[GameProfile, QueueEntry], Awaitable[bool] | bool]
+
+
+@dataclass(frozen=True)
+class RegistryOp:
+    """A registry change to apply on Discord *after* the transaction commits."""
+
+    kind: str  # "upsert" (create/edit the entry) or "delete_message"
+    profile_id: int | None = None
+    channel_id: int | None = None
+    message_id: int | None = None
 
 
 @dataclass
@@ -137,9 +149,31 @@ class ProfileService:
         self._parties = PartyRepository(session)
         self._matches = MatchRepository(session)
         self.eligibility_hook = eligibility_hook
+        self._registry_ops: list[RegistryOp] = []
+        self._prefs = GamePreferenceRepository(session)
+        self._notifs = NotificationSettingRepository(session)
         self.stale_after_days = (
             stale_after_days if stale_after_days is not None else self._configured_stale_days()
         )
+
+    def pop_registry_ops(self) -> list[RegistryOp]:
+        """Registry changes to apply on Discord once the caller has committed."""
+        ops = list(self._registry_ops)
+        self._registry_ops.clear()
+        return ops
+
+    async def _registry_delete_ops(self, profile_ids: list[int]) -> int:
+        """Drop registry rows now; remember the Discord messages so they can be deleted later."""
+        removed = 0
+        for pid in profile_ids:
+            row = await self._registry.get_by_profile(pid)
+            if row is None:
+                continue
+            self._registry_ops.append(
+                RegistryOp("delete_message", channel_id=row.channel_id, message_id=row.message_id)
+            )
+            removed += await self._registry.delete_for_profile(pid)
+        return removed
 
     @staticmethod
     def _configured_stale_days() -> int:
@@ -223,6 +257,8 @@ class ProfileService:
         activity = values.get("activity")
         if activity is not None:
             activity_options = list(dict.fromkeys([*game.activities, *game.queues]))
+            if len(game.activities) > 1:
+                activity_options.append("either")  # Deadlock Ranked/Standard/Either, etc.
             activity = _canonical(str(activity), activity_options, "activity")
 
         rank_source = str(values.get("rank_source") or "self_reported").strip()
@@ -245,7 +281,7 @@ class ProfileService:
             "region": region,
             "platform": platform,
             "activity": activity,
-            "playstyle": _clean_text(values.get("playstyle"), "playstyle", 64),
+            "playstyle": self._validated_playstyle(game.key, values.get("playstyle")),
             "rank_source": rank_source,
             "preferred_roles": preferred_roles,
             "acceptable_roles": acceptable_roles,
@@ -265,6 +301,13 @@ class ProfileService:
             "needs_update": False,
             "needs_update_reason": None,
         }
+
+    def _validated_playstyle(self, game: str, playstyle: Any) -> str | None:
+        text = _clean_text(playstyle, "playstyle", 64)
+        options = self._roles.playstyles.get(game)
+        if text is None or not options:
+            return text
+        return _canonical(text, options, "playstyle")
 
     def _validated_roles(self, game: str, roles: Any, field: str) -> list[str] | None:
         cleaned = _clean_list(roles, field)
@@ -332,6 +375,7 @@ class ProfileService:
             **state,
         )
         await self._profiles.create(profile)
+        self._registry_ops.append(RegistryOp("upsert", profile_id=profile.id))
         return profile
 
     async def update_profile(self, user_id: int, game: str, **changes: Any) -> GameProfile:
@@ -349,6 +393,7 @@ class ProfileService:
             setattr(profile, field, value)
         await self.session.flush()
         await self._refresh_queued_profile(profile)
+        self._registry_ops.append(RegistryOp("upsert", profile_id=profile.id))
         return profile
 
     async def get_profile(
@@ -389,16 +434,39 @@ class ProfileService:
             dict.fromkeys(entry.party_id for entry in active_entries if entry.party_id)
         )
 
-        try:
-            await self._registry.delete_for_profile(profile.id)
-        except Exception:
-            pass
+        await self._registry_delete_ops([profile.id])
         await self._queues.delete_for_user(self.guild_id, user.id, game=game_config.key)
         if party_ids:
             await self._queues.cancel_for_parties(self.guild_id, party_ids)
             await self._matches.cancel_for_parties(self.guild_id, party_ids)
             await self._parties.delete_for_parties(self.guild_id, party_ids)
+        await self._queues.release_orphaned_reservations(self.guild_id)
         return await self._profiles.delete(self.guild_id, user.id, game_config.key)
+
+    async def set_availability_display(self, user_id: int, show: bool) -> bool:
+        """Whether the registry shows this member's LFG availability (default: off)."""
+        user = await self._users.get_or_create(self.guild_id, user_id)
+        setting = await self._notifs.get_for_user(user.id)
+        if setting is None:
+            setting = await self._notifs.set_opt_in(self.guild_id, user.id, True)
+        setting.show_availability = show
+        await self.session.flush()
+        for profile in await self._profiles.list_for_user(self.guild_id, user.id):
+            self._registry_ops.append(RegistryOp("upsert", profile_id=profile.id))
+        return show
+
+    async def set_notifications(self, user_id: int, opt_in: bool) -> bool:
+        user = await self._users.get_or_create(self.guild_id, user_id)
+        setting = await self._notifs.set_opt_in(self.guild_id, user.id, opt_in)
+        return setting.opt_in
+
+    async def get_preferences(self, user_id: int) -> dict[str, bool]:
+        user = await self._users.get(self.guild_id, user_id)
+        setting = await self._notifs.get_for_user(user.id) if user else None
+        return {
+            "notifications": True if setting is None else setting.opt_in,
+            "show_availability": False if setting is None else setting.show_availability,
+        }
 
     async def delete_all_user_data(self, user_id: int) -> DeletionSummary:
         user = await self._users.get(self.guild_id, user_id)
@@ -407,12 +475,7 @@ class ProfileService:
 
         profiles = await self._profiles.list_for_user(self.guild_id, user.id)
         profile_ids = [profile.id for profile in profiles]
-        registry_deleted = 0
-        try:
-            for pid in profile_ids:
-                registry_deleted += await self._registry.delete_for_profile(pid)
-        except Exception:
-            registry_deleted = 0
+        registry_deleted = await self._registry_delete_ops(profile_ids)
 
         party_ids = list(
             dict.fromkeys(
@@ -434,6 +497,7 @@ class ProfileService:
         for profile in profiles:
             await self._profiles.delete(self.guild_id, user.id, profile.game)
         await self._users.delete(user.id)
+        await self._queues.release_orphaned_reservations(self.guild_id)
 
         return DeletionSummary(
             profiles=len(profiles),
@@ -522,6 +586,7 @@ class ProfileService:
 
 
 __all__ = [
+    "RegistryOp",
     "DeletionSummary",
     "EligibilityHook",
     "ProfileAlreadyExistsError",

@@ -1,23 +1,20 @@
-"""Purge on member leave helper."""
+"""Purge on member leave: one code path, shared with ``/profile delete_all``."""
+
 from __future__ import annotations
 
-from tianling.db.repositories.game_profiles import GameProfileRepository
-from tianling.db.repositories.users import UserRepository
+from tianling.services.profile_service import DeletionSummary, ProfileService
 
 
 class DataPurgeService:
-    def __init__(self, session):
+    """Deletes everything stored about a member: profiles, registry entries, queue
+    entries and parties (cancelling any pending group they were part of)."""
+
+    def __init__(self, session, guild_id: int | None = None) -> None:
         self.session = session
-        self.users = UserRepository(session)
-        self.profiles = GameProfileRepository(session)
+        self.guild_id = guild_id
 
-    async def purge_member(self, guild_id: int, member_id: int):
-        user = await self.users.get(guild_id, member_id)
-        if not user:
-            return
-        from sqlalchemy import delete
-
-        from tianling.db.models import GameProfile
-        await self.session.execute(delete(GameProfile).where(GameProfile.user_id == user.id))
-        await self.users.delete(user.id)
-        await self.session.flush()
+    async def purge_member(self, guild_id: int, member_id: int) -> DeletionSummary:
+        service = ProfileService(self.session, guild_id)
+        summary = await service.delete_all_user_data(member_id)
+        self.registry_ops = service.pop_registry_ops()
+        return summary

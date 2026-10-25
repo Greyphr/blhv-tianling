@@ -19,16 +19,10 @@ async def seed_guild_data(
     games = loader.load_games()
     rank_repo = RankRepository(session)
     for g in games.games:
-        if g.key == "overwatch_2":
-            for qt in ("role_queue", "open_queue"):
-                ranks = loader.load_ranks(g.key, qt)
-                await rank_repo.upsert_from_seed(
-                    guild_id, g.key, qt, [r.model_dump() for r in ranks.ranks]
-                )
-        else:
-            ranks = loader.load_ranks(g.key, "default")
+        for queue_type in loader.rank_pools(g.key):
+            ranks = loader.load_ranks(g.key, queue_type)
             await rank_repo.upsert_from_seed(
-                guild_id, g.key, "default", [r.model_dump() for r in ranks.ranks]
+                guild_id, g.key, queue_type, [r.model_dump() for r in ranks.ranks]
             )
 
     comps = loader.load_compositions()

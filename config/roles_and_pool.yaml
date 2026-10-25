@@ -21,6 +21,13 @@ roles:
     - key: flexible
       name: Flexible
 
+playstyles:
+  apex_legends:
+    - aggressive
+    - recon
+    - support
+    - flexible
+
 hero_pool:
   marvel_rivals:
     editable: true
@@ -68,7 +75,7 @@ hero_pool:
       - D.Va
       - Junker Queen
       - Hazard
-      - Soldier: 76
+      - "Soldier: 76"
       - Reaper
       - Tracer
       - Genji

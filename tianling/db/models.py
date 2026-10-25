@@ -8,7 +8,6 @@ from sqlalchemy import (
     JSON,
     BigInteger,
     Boolean,
-    DateTime,
     ForeignKey,
     Index,
     Integer,
@@ -19,6 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from tianling.db.base import Base
+from tianling.db.types import UTCDateTime
 
 
 def utcnow() -> datetime:
@@ -26,11 +26,9 @@ def utcnow() -> datetime:
 
 
 class TimestampMixin:
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False
+        UTCDateTime(), default=utcnow, onupdate=utcnow, nullable=False
     )
 
 
@@ -159,6 +157,8 @@ class NotificationSetting(Base, TimestampMixin, GuildScopedMixin):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True
     )
     opt_in: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    #: Public availability indicator in the registry. Off unless the member opts in.
+    show_availability: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     allowed_pings: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
     rate_limit_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
@@ -173,7 +173,10 @@ class PartyMember(Base, TimestampMixin, GuildScopedMixin):
     accepted_roles: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
     rank_snapshot: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     is_guest: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_test: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    game: Mapped[str | None] = mapped_column(String(32), nullable=True)
     confirmed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    invite_expires_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
 
 
 class QueueEntry(Base, TimestampMixin, GuildScopedMixin):
@@ -195,14 +198,14 @@ class QueueEntry(Base, TimestampMixin, GuildScopedMixin):
     leader_member_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     open_slots: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="queued", nullable=False, index=True)
-    queued_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow, nullable=False
-    )
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    queued_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow, nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     relaxation_level: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     proposal_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     either_group: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     sibling_entry_ids: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
+    is_test: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    still_looking_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     __table_args__ = (
         Index(
@@ -230,11 +233,15 @@ class MatchGroup(Base, TimestampMixin, GuildScopedMixin):
     party_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="proposed", nullable=False)
     proposal_status: Mapped[str] = mapped_column(String(16), default="pending", nullable=False)
-    confirmation_deadline: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    confirmation_deadline: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     roster: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     voice_channel_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    proposal_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    roster_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    channel_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    message_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    finalized_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    cancel_reason: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 class MatchMember(Base, TimestampMixin, GuildScopedMixin):
@@ -251,7 +258,11 @@ class MatchMember(Base, TimestampMixin, GuildScopedMixin):
     )
     role_assigned: Mapped[str | None] = mapped_column(String(32), nullable=True)
     response: Mapped[str | None] = mapped_column(String(16), nullable=True)
-    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    responded_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    entry_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    is_guest: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_test: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    rank_snapshot: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("match_group_id", "member_id", name="uq_match_members_group_member"),
@@ -267,7 +278,7 @@ class TemporaryChannel(Base, TimestampMixin, GuildScopedMixin):
     match_group_id: Mapped[int | None] = mapped_column(
         ForeignKey("match_groups.id", ondelete="SET NULL"), nullable=True
     )
-    empty_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    empty_since: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
 
 
@@ -325,7 +336,7 @@ class ScheduledJob(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     job_type: Mapped[str] = mapped_column(String(32), nullable=False)
-    run_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    run_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False, index=True)
     payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="pending", nullable=False, index=True)
     guild_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, index=True)
@@ -337,8 +348,24 @@ class MemberPenalty(Base, TimestampMixin, GuildScopedMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     member_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
     count: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False, index=True)
 
     __table_args__ = (
         UniqueConstraint("guild_id", "member_id", name="uq_member_penalties_guild_member"),
+    )
+
+
+class FailedRoster(Base, TimestampMixin, GuildScopedMixin):
+    """A recently failed roster hash, so the same group is not regenerated at once."""
+
+    __tablename__ = "failed_rosters"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    game: Mapped[str] = mapped_column(String(32), nullable=False)
+    activity: Mapped[str] = mapped_column(String(32), nullable=False)
+    roster_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False, index=True)
+
+    __table_args__ = (
+        Index("ix_failed_rosters_lookup", "guild_id", "game", "activity", "roster_hash"),
     )

@@ -61,7 +61,9 @@ def test_migrations_run_from_empty_db(tmp_path: Path, monkeypatch: pytest.Monkey
     }
     assert required <= tables
     assert {"needs_update", "needs_update_reason"} <= profile_columns
-    assert revision == "0004_proposal_fields"
+    from alembic.script import ScriptDirectory
+
+    assert revision == ScriptDirectory.from_config(cfg).get_current_head()
 
 
 @pytest.mark.asyncio
@@ -177,7 +179,7 @@ async def test_reserve_entries_atomic_under_concurrent_tasks(tmp_path: Path) -> 
         async with session_maker() as s:
             q = QueueRepository(s)
             try:
-                await q.reserve_entries(1, pid, ids, 333)
+                await q.reserve_entries(1, pid, ids)
                 await s.commit()
                 return "ok"
             except Exception:

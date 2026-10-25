@@ -133,3 +133,14 @@ def test_bad_files_raise_clear_errors(tmp_path: Path) -> None:
     loader2 = SeedLoader(tmp_path)
     with pytest.raises(ValueError):
         loader2.load_ranks("marvel_rivals", "default")
+
+
+def test_hero_pool_items_are_plain_strings() -> None:
+    """Guards against YAML quirks such as an unquoted 'Soldier: 76' becoming a mapping."""
+    from tianling.core.seed_loader import SeedLoader
+
+    pools = SeedLoader().load_roles_and_pool().hero_pool
+    for game, pool in pools.items():
+        items = pool.get("items", [])
+        assert all(isinstance(item, str) for item in items), game
+        assert len(items) == len(set(items)), f"duplicate heroes in {game}"

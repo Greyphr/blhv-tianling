@@ -38,10 +38,20 @@ def create_db_engine(url: str):
 
         @event.listens_for(db_engine.sync_engine, "connect")
         def _set_sqlite_pragma(dbapi_connection, connection_record):  # type: ignore
+            # Take manual control of transactions so BEGIN IMMEDIATE can be used.
+            dbapi_connection.isolation_level = None
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA busy_timeout=15000")
             cursor.close()
+
+        @event.listens_for(db_engine.sync_engine, "begin")
+        def _begin_immediate(conn):  # type: ignore
+            # Writers serialize at transaction start instead of failing with
+            # SQLITE_BUSY_SNAPSHOT halfway through a read-then-write sequence.
+            # This is what makes concurrent queue joins safe on SQLite.
+            conn.exec_driver_sql("BEGIN IMMEDIATE")
 
     return db_engine
 
@@ -52,6 +62,12 @@ AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_co
 
 @asynccontextmanager
 async def session_scope() -> AsyncIterator[AsyncSession]:
+    """Transaction boundary. Handlers own commits; services only flush.
+
+    Never hold a session open across Discord API calls and never open a second
+    ``session_scope`` while one is active: on SQLite the second one would wait
+    for the first one's write lock.
+    """
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -59,6 +75,22 @@ async def session_scope() -> AsyncIterator[AsyncSession]:
         except Exception:
             await session.rollback()
             raise
+
+
+def make_session_scope(factory: async_sessionmaker[AsyncSession]):
+    """Build a ``session_scope``-style context manager bound to another session factory."""
+
+    @asynccontextmanager
+    async def scope() -> AsyncIterator[AsyncSession]:
+        async with factory() as session:
+            try:
+                yield session
+                await session.commit()
+            except Exception:
+                await session.rollback()
+                raise
+
+    return scope
 
 
 class UnitOfWork:
